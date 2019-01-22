@@ -8,6 +8,7 @@ close all
 
 % Set paramentes
 l1 = 1;
+l2 = 1;
 delta = 0.1;
 d = 0.2;
 h = 0.5;
@@ -15,16 +16,45 @@ D = 0.75;
 
 param = [l1 delta d h D];
 
+figure('Name','RP Robot','NumberTitle','off');
 hold on;
+i=1;
 for q1 = 0:0.1:2*pi
-    for q2 = 0:0.01:D
+    for q2 = 0:0.1:D
         [x,y] = fowardRP(q1, q2, param); 
         if y>=0
-            plotRP(x,y, param)
+            plotRP(x,y, param);
+%             xs(i) = x(3);
+%             ys(i) = y(3);
+%             i=i+1;
         end
     end
 end
+% xs(i) = 0;
+% ys(i) = h;
+k = boundary(xs',ys');
+plot(xs(k),ys(k),'-r');
 
+hold on;
+line([-1 1],[0 0],'Color','black','LineWidth',2);
+
+figure('Name','PR Robot','NumberTitle','off');
+i=1;
+for q1 = 0:0.1:D
+    for q2 = 0:0.1:2*pi
+        [x,y] = fowardPR(q1, q2, param); 
+        if y>=0
+            plotPR(x,y, param)
+%             xs(i) = x(2);
+%             ys(i) = y(2);
+%             i=i+1;
+        end
+    end
+end
+% k = boundary(xs',ys');
+% plot(xs(k),ys(k),'-r');
+
+%% Functions
 function [x,y] = fowardRP(q1, q2, param)
     
     l1 = param(1);
@@ -61,11 +91,40 @@ function plotRP(x,y, param)
     line([0 x(1)], [h y(1)],'LineStyle','--');
     line([x(2) x(3)], [y(2) y(3)],'LineStyle','--');
     line([x(4) x(5)], [y(4) y(5)],'Color','black');
-    
-%     rectangle('Position', [-.5*d -.5*d d d], 'Curvature', 1)
-    
+    plot(x(3), y(3), '*b');
+      
     axis equal
 end
 
 
+function [x,y] = fowardPR(q1, q2, param)
+    
+    l2 = param(1);
+    delta = param(2);
+    d = param(3);
+    h = param(4);
+    D = param(5);
+
+    x1 = 0;
+    y1 = q1+h;
+      
+    x2 = x1 + l2*cos(q2);
+    y2 = y1 + l2*sin(q2);
+
+    x = [x1 x2];
+    y = [y1 y2];
+end
+
+function plotPR(x,y, param)
+
+    d = param(3);
+    h = param(4);
+    
+    hold on;
+    line([0 0], [0 h],'LineStyle','--');
+    line([0 x(1)], [h y(1)],'LineStyle','--');
+    line([x(1) x(2)], [y(1) y(2)],'LineStyle','--');
+        
+    axis equal
+end
 
