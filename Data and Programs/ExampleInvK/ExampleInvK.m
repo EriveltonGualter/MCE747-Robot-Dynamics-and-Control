@@ -7,7 +7,7 @@
 %NOTE: Edit to use your own rotation and homogeneous
 %transformation functions.
 %This code assumes that Rotx,Rotz,Transx,Transz (4x4 homogeneous) and 
-%Rx, Rz (3x3 rotation) are available as Matlab functions
+%Rot_x, Rot_z (3x3 rotation) are available as Matlab functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %startup_rvc
@@ -82,7 +82,8 @@ for i=1:n,
     q3(i)=sqrt(xc(i)^2+yc(i)^2);
     
     %Enter inverse orientation sub-problem:
-    R30=Rz(q1(i))*Rx(-pi/2);
+    R30=Rot_z(q1(i))*Rot_x(-pi/2);
+    R30 = R30(1:3,1:3);
     R63=inv(R30)*R;
     
     %Decompose this by Euler
@@ -113,13 +114,13 @@ hold on
 for i=1:n,
 
     %Manual transformation:
-    H10=Rotz(q1(i))*Transz(d1);
-    H21=Transz(q2(i))*Rotx(-pi/2);
-    H32=Transz(q3(i));
+    H10=Rot_z(q1(i))*Trans_z(d1);
+    H21=Trans_z(q2(i))*Rot_x(-pi/2);
+    H32=Trans_z(q3(i));
     H30=H10*H21*H32;
-    H43=Rotz(q4(i))*Rotx(-pi/2);
-    H54=Rotz(q5(i))*Rotx(pi/2);
-    H65=Rotz(q6(i));
+    H43=Rot_z(q4(i))*Rot_x(-pi/2);
+    H54=Rot_z(q5(i))*Rot_x(pi/2);
+    H65=Rot_z(q6(i));
     H60=H30*H43*H54*H65;
     
     %Find world position of point of interest:
