@@ -19,10 +19,14 @@ close all
        
     ax1 = axes('Position',[0.1 0.1 0.7 0.7]);
     ax2 = axes('Position',[0.65 0.65 0.28 0.28]); 
-    hold on; view([1,0,0]);
+    ax3 = axes('Position',[0.65 0.1 0.28 0.28]); 
+%     hold on; view([1,0,0]);
     set(gcf, 'Position', get(0, 'Screensize'));
 
-    DrawEnv(ax1)
+    % Initialize Plots
+    axes(ax1); DrawCylinder(ax1,'none','b'); DrawBase();
+    axes(ax2); DrawCylinder(ax2,'none','b'); DrawBase(); title('Cutting Focus','interpreter','latex','fontsize', 14);
+    axes(ax3); DrawCylinder(ax3,'-','k'); axis equal; view(0, 90); title('XY view','interpreter','latex','fontsize', 14);
 %     Draw(q1, q2, q3, q4, param, ax1);
     
     %% Trajectory
@@ -33,7 +37,7 @@ close all
     T15 = 0:ts:15/v; 
     T40 = 0:ts:40/v;
     
-    % Initialize arrar
+    % Initialize array
     Ox = ones(1,length(t))*(400 + sqrt(50^2-7.5^2));
     Oy = ones(1,length(t));
     Oz = ones(1,length(t));
@@ -78,9 +82,14 @@ close all
         t2(:,i) = T(2,4:4:end)';
         t3(:,i) = T(3,4:4:end)';
     end
+       
+    %% RMS 
+    rmsox = rms([Ox-t1(end,:)])
+    rmsoy = rms([Oy-t2(end,:)])
+    rmsoz = rms([Oz-t3(end,:)]) 
 
     
-    %%     Simulation
+    %% Simulation
     time = 0;
     tic;
     while time < t(end)
@@ -97,20 +106,35 @@ close all
         % Update current time
         time = toc;
         
-        axes(ax1);
+        axes(ax1); hold on;
+        plotLinks(t1p,t2p,t3p);     % Plot Robot
+        plot3(oxp,oyp,ozp,'.r');    % Plot Cut
         
-        hold on;
-        plotLinks(t1p,t2p,t3p)
-        plot3(oxp,oyp,ozp,'.r');
+        str = horzcat('Time = ',num2str(time,3),' s ...');
+        title(str,'interpreter','latex','fontsize', 14);
         
-        axes(ax2);
+        axes(ax2); hold on; 
         view(45, 180/6);
-        axis equal
-        axis([445 553 -10 10 84 126]);
-        plot3(oxp,oyp,ozp,'.r');
+        axis equal; 
+        axis([400 500 -50 50 60 180]);
+        plot3(oxp,oyp,ozp,'.r');    % Plot Cut
+        
+        axes(ax3); hold on;
+        plotEnd(t1p(end-2:end),t2p(end-2:end),t3p(end-2:end))
+        plot3(oxp,oyp,ozp,'.r');    % Plot Cut
         
         drawnow
     end 
+    
+    axes(ax1);
+    str = horzcat('Total Time = ',num2str(time,3),' s ');
+    title(str,'interpreter','latex','fontsize', 14);
+    
+    figure;
+    title('Results from Inverse and Forward Kinematics');
+    subplot(311); hold on; plot(t,Ox,'-r', 'LineWidth',2); plot(t, t1(end,:),'--k', 'LineWidth',1.5); box on; ylabel('Ox'); ylim([400 500]);
+    subplot(312); hold on; plot(t,Oy,'-r', 'LineWidth',2); plot(t, t2(end,:),'--k', 'LineWidth',1.5); box on; ylabel('Oy');
+    subplot(313); hold on; plot(t,Oz,'-r', 'LineWidth',2); plot(t, t3(end,:),'--k', 'LineWidth',1.5); box on; ylabel('Oz'); xlabel('Time, s');
 
 %     print('SCARAconf0','-depsc')
     
@@ -154,13 +178,16 @@ close all
         d3  = oz - d;
     end
     
-    function DrawEnv(ax)
+    function DrawCylinder(ax, linestyle, color)
         axes(ax);
         r=50;
         [X,Y,Z] = cylinder(r, 100);
         X = X + 400;
         Z = Z*175 + [75; 0];
-        mesh(X,Y,Z,'facecolor',[.7 .7 .7], 'LineStyle', 'none', 'FaceAlpha',0.6);
+        mesh(X,Y,Z,'facecolor',[.7 .7 .7], 'LineStyle', linestyle, 'EdgeColor', color, 'FaceAlpha',0.6);
+    end
+    
+    function DrawBase()
         cube_plot([100,-100,0],400,200,75,'blue');
     end
     
@@ -204,33 +231,22 @@ close all
         view(45, 180/6);
         axis equal
     end
+    
+    function plotEnd(x,y,z)
+        global endeff;
 
-    function T =  forwardKinematicsPPWristSym(q1, q2, q3, q4, param)
-        
-        d1 = param(1);
-        d2 = param(2);
-        a2 = param(3);
-        a3 = param(4);
-        d4 = param(5);
-        a4 = param(6);
-        
-        T00 = [1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1]
-        T01 = getTransformMatrixDH(0, 0, d1, 0)
-        T12 = getTransformMatrixDH(a2, 0, d2, q1)
-        T23 = getTransformMatrixDH(a3, sym(pi), 0, q2)
-        T34 = getTransformMatrixDH(0, 0, d4+q3, 0)
-        T45 = getTransformMatrixDH(a4, 0, 0, q4)
-        T56 = getTransformMatrixDH(0, sym(pi)/2, 0, sym(pi)/2)
-        
-        T02 = T01*T12;
-        T03 = T02*T23;
-        T04 = T03*T34;
-        T05 = T04*T45
-        T06 = T05*T56;
-        
-        T = [T00 T01 T02 T03 T04 ];
+        % Draw the cart:
+        if isempty(endeff)
+            endeff =  line(x,y,z, 'LineWidth',2); 
+        else
+            endeff.XData = x;
+            endeff.YData = y;
+            endeff.ZData = z;
+        end
+%         view(0, 90);
+        axis equal
     end
-        
+       
     function Ai = getTransformMatrixDH(a, alpha, d, theta)
         Ai = Rot_z(theta)*Trans_z(d)*Trans_x(a)*Rot_x(alpha);
     end
