@@ -93,10 +93,6 @@ X0 = [x10; x20];
 sim('maglev.slx',1);
 plot(X(:,1), X(:,2));
 
-figure;
-[X1, X2] = meshgrid(0:1e-4:.014, -.1:1e-3:.1);
-contourf(X1,X2,Vdot, [-Inf 0]); hold on;
-
 % Polar Scan 
 P1 = [];
 P2 = [];
