@@ -6,15 +6,18 @@ syms a b c d e f
 syms Q1 Q2 Q3 Q4
 
 Qarr = [Q1, Q2, Q3, Q4];
-
+% Qarr = q;
 F(1,1) = a+b+d*Q1;
 F(1,2) = a+b+c;
 F(2,1) = a+b*cos(Q1+Q2);
 F(2,2) = c*Q2;
 
+% F = D;
 % Expand Matrix
 % F = expand(F);
 F = expand(F,'ArithmeticOnly', true);
+
+children(a*b);
 
 % Find children
 N = length(F);
@@ -39,6 +42,8 @@ for idx=0:length(Qarr)
         CFA = diff(CF, Qarr(idx));
         CFB = diff(CF, Qarr(idx));
     end
+    
+        
     for i=1:M
         for j=1:N
             for I=1:M
