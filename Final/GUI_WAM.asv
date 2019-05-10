@@ -22,7 +22,7 @@ function varargout = GUI_WAM(varargin)
 
 % Edit the above text to modify the response to help GUI_WAM
 
-% Last Modified by GUIDE v2.5 10-May-2019 16:58:47
+% Last Modified by GUIDE v2.5 10-May-2019 16:01:33
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -200,7 +200,7 @@ Ffcn    = handles.Ffcn;
 Yfcn    = handles.Yfcn;
 Yavfcn  = handles.Yavfcn;
 TH      = handles.TH;
-% Q0      = handles.Q0;
+Q0      = handles.Q0;
 w       = handles.w;
 
 rho = str2num(get(handles.rho, 'String'));
@@ -268,7 +268,7 @@ switch get(handles.uibuttongroup1.SelectedObject, 'String')
             Lambda = diag([lbd1 lbd2 lbd3]);
 
             TH0 = TH;
-
+% , handles.Q, handles.Qd, handles.Qdd)
             simOut = sim('sim_WAM_PBRCDynamics', handles.paramNameValStruct); %cla;
             plotStates(simOut.t, simOut.Q, handles.pax, simOut.Tau);
         end
@@ -623,8 +623,8 @@ Q1 = sin(t);        Q1d = cos(t);       Q1dd = -sin(t);
 Q2 = -.5+sin(t);    Q2d = cos(t);      Q2dd = sin(t);
 Q4 = .75*sin(t);    Q4d = .75*cos(t);   Q4dd = -.75*sin(t);
 
-q = [Q1; Q2; Q4];
-qd = [Q1d; Q2d; Q4d];
+q = [Q1; Q2; Q4]*.5;
+qd = [Q1d; Q2d; Q4d]*2;
 qdd = [Q1dd; Q2dd; Q4dd];
 handles.Tau = q;
 handles.Q = [q; qd; qdd].';
@@ -634,32 +634,12 @@ set(handles.btnOpt,'str','FIND Optimal Trajectories','backg',col)
 guidata(hObject, handles);
 
 
-% --- Executes on button press in checkbox2.
-function checkbox2_Callback(hObject, eventdata, handles)
-% hObject    handle to checkbox2 (see GCBO)
+% --- Executes on button press in pushbutton6.
+function pushbutton6_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton6 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of checkbox2
+handles.select = 0;
+guidata(hObject, handles);
 
-if get(hObject,'Value')
-%     handles.select = 0;
-%     handles.Q0 = handles.Q(1,:);
-    set(handles.checkbox2,'value',1);
-    guidata(hObject, handles);
-end
-
-% --- Executes on button press in checkbox3.
-function checkbox3_Callback(hObject, eventdata, handles)
-% hObject    handle to checkbox3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of checkbox3
-
-if get(hObject,'Value')
-    handles.select = 0;
-    handles.Q0 = handles.Q(1,:);
-    set(handles.checkbox2,'value',0);
-    guidata(hObject, handles);
-end

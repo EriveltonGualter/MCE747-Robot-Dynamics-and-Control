@@ -1,0 +1,6 @@
+function out = Roty(alpha)
+%Rot_y: Basic rotation matrix about the y-axes 
+out = [cos(alpha) 0 sin(alpha); ...
+    0 1 0; ...
+    -sin(alpha) 0 cos(alpha)]; 
+end

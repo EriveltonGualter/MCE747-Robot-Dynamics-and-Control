@@ -1,0 +1,17 @@
+function out = getOptimal(t, Q)
+
+%     Z1 = Z);
+%     Z2 = Z(:,4:6);
+%     Z3 = Z(:,7:9);
+%     
+
+% disp('Stop here');
+
+    time = 0:.1:10;
+    q1 = interp1(time,Q(:,1),t')';
+    q2 = interp1(time,Q(:,2),t')';
+    q4 = interp1(time,Q(:,3),t')';
+
+out = 0;
+%     
+end
