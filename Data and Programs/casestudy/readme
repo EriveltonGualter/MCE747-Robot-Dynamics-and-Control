@@ -1,0 +1,11 @@
+ExtFterm.m and inv_vel_accel.m are auxiliary symbolic computation files (not necessary to simulate)
+
+To simulate run setup and the mdl file.
+
+The robot will bounce off the wall. 
+
+If the wall position is moved to interfere too much with the robot's path, destabilization due
+to interaction will occur. An impedance controller would offer a much better solution.
+
+
+

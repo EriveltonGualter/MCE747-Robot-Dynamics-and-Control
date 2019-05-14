@@ -1,3 +1,6 @@
+clear all
+close all
+
 syms TH1 TH2 TH3 TH4 TH5 sgn  g q1 q2 q1dot q2dot
 
 D(1,1)=TH1;
