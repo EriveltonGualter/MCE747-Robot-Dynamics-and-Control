@@ -22,7 +22,7 @@ function varargout = GUI_WAM(varargin)
 
 % Edit the above text to modify the response to help GUI_WAM
 
-% Last Modified by GUIDE v2.5 10-May-2019 16:58:47
+% Last Modified by GUIDE v2.5 10-May-2019 19:49:28
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -81,7 +81,6 @@ handles.LevelPer = 0;
 
 handles.paramNameValStruct.StopTime = '10';
 handles.paramNameValStruct.SrcWorkspace = 'current';
-
 
 handles.pax(1) = subplot(331,'Parent', handles.panel_plot); hold on; box on;
 handles.pax(2) = subplot(332,'Parent', handles.panel_plot); hold on; box on;
@@ -205,18 +204,11 @@ w       = handles.w;
 
 rho = str2num(get(handles.rho, 'String'));
 
-if handles.LevelPer ~= 0
-    lvl = 2*handles.LevelPer*rand(27,1) - handles.LevelPer + 1
-    [Mfcn, Cfcn, Gfcn, Ffcn, Yfcn, Yavfcn, TH] = ...
-        convertSymVarsTOfunctions(handles.M, handles.C, handles.G, handles.F, handles.TH.*lvl);
-end
-
-
 switch get(handles.uibuttongroup1.SelectedObject, 'String')
     case {'Inverse Dynamics'}
         disp('Simulate the system using Inverse Dynamics.');
 
-        simOut = sim('sim_WAM_InverseDynamics', handles.paramNameValStruct); %cla;
+        simOut = sim('sim_WAM_InverseDynamics', handles.paramNameValStruct); 
         plotStates(simOut.t, simOut.Q, handles.pax, simOut.Tau);
 
     case {'Robust Inverse Dynamics'}
@@ -228,26 +220,32 @@ switch get(handles.uibuttongroup1.SelectedObject, 'String')
     case {'Passivity-Based Motion Control'}
         disp('Passivity-Based Motion Control');
         
-        simOut = sim('sim_WAM_PBMCDynamics', handles.paramNameValStruct); %cla;
+        simOut = sim('sim_WAM_PBMCDynamics', handles.paramNameValStruct); 
         plotStates(simOut.t, simOut.Q, handles.pax, simOut.Tau);
 
     case {'Passivity-Based Robust Control'}
         disp('Simulate the system using Passivity-Based Robust Control.');
         
+        if handles.LevelPer ~= 0
+            lvl = 2*handles.LevelPer*rand(27,1) - handles.LevelPer + 1;
+            [Mfcn, Cfcn, Gfcn, Ffcn, Yfcn, Yavfcn, TH] = ...
+                convertSymVarsTOfunctions(handles.M, handles.C, handles.G, handles.F, handles.TH.*lvl);
+        end
+
         sim_flag = false;
         if isempty(str2num(get(handles.rho, 'String')))
             answer = questdlg('Auto set gains ?','Boundary Condition', 'Yes', 'No', 'No idea');
             switch answer
                 case 'Yes'
                     set(handles.gamma, 'String', '5');
-                    set(handles.rho, 'String', '10');
+                    set(handles.rho, 'String', '3');
                     set(handles.eps, 'String', '.1');
-                    set(handles.k1, 'String', '10');
-                    set(handles.k2, 'String', '30');
-                    set(handles.k3, 'String', '10');
-                    set(handles.lbd1, 'String', '5');
-                    set(handles.lbd2, 'String', '5');
-                    set(handles.lbd3, 'String', '5');
+                    set(handles.k1, 'String', '2');
+                    set(handles.k2, 'String', '2');
+                    set(handles.k3, 'String', '2');
+                    set(handles.lbd1, 'String', '3');
+                    set(handles.lbd2, 'String', '3');
+                    set(handles.lbd3, 'String', '3');
                     sim_flag = true;
             end
         else
@@ -269,7 +267,7 @@ switch get(handles.uibuttongroup1.SelectedObject, 'String')
 
             TH0 = TH;
 
-            simOut = sim('sim_WAM_PBRCDynamics', handles.paramNameValStruct); %cla;
+            simOut = sim('sim_WAM_PBRCDynamics', handles.paramNameValStruct); 
             plotStates(simOut.t, simOut.Q, handles.pax, simOut.Tau);
         end
         
@@ -286,6 +284,12 @@ switch get(handles.uibuttongroup1.SelectedObject, 'String')
         
         K = diag([k1 k2 k3]);
         Lambda = diag([lbd1 lbd2 lbd3]);
+        
+        if handles.LevelPer ~= 0
+            lvl = 2*handles.LevelPer*rand(27,1) - handles.LevelPer + 1;
+        else
+            lvl = ones(27,1);
+        end
         
         simOut = sim('sim_WAM_PBACDynamics', handles.paramNameValStruct);
         plotStates(simOut.t, simOut.Q, handles.pax, simOut.Tau);
@@ -541,7 +545,23 @@ handles.hd(4) = plot(handles.pax(5), t, Q2d, 'LineWidth', 1.5); ylabel(handles.p
 handles.hd(5) = plot(handles.pax(3), t, Q4, 'LineWidth', 1.5); ylabel(handles.pax(3), 'q4');
 handles.hd(6) = plot(handles.pax(6), t, Q4d, 'LineWidth', 1.5); ylabel(handles.pax(6), 'q4dot');
 set(handles.hd,'Visible','off');
+
+% t = 0:.1:str2num(handles.paramNameValStruct.StopTime);
+% handles.ho(1) = plot(handles.pax(1), t, handles.Q(:,1), 'LineWidth', 1.5);  ylabel(handles.pax(1), 'q1');
+% handles.ho(2) = plot(handles.pax(4), t, handles.Q(:,4), 'LineWidth', 1.5);  ylabel(handles.pax(4), 'q1dot');
+% 
+% handles.ho(3) = plot(handles.pax(2), t, handles.Q(:,2), 'LineWidth', 1.5); ylabel(handles.pax(2), 'q2');
+% handles.ho(4) = plot(handles.pax(5), t, handles.Q(:,5), 'LineWidth', 1.5); ylabel(handles.pax(5), 'q2dot');
+% 
+% handles.ho(5) = plot(handles.pax(3), t, handles.Q(:,3), 'LineWidth', 1.5); ylabel(handles.pax(3), 'q4');
+% handles.ho(6) = plot(handles.pax(6), t, handles.Q(:,6), 'LineWidth', 1.5); ylabel(handles.pax(6), 'q4dot');
+% set(handles.ho,'Visible','off');
+
 set(handles.checkbox1,'value',0);
+set(handles.checkbox2,'value',0);
+set(handles.checkbox3,'value',0);
+set(handles.checkbox4,'value',0);
+
 guidata(hObject, handles);
 
 
@@ -553,13 +573,13 @@ function pushbutton3_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 set(handles.gamma, 'String', '5');
-set(handles.rho, 'String', '10');
+set(handles.rho, 'String', '5');
 set(handles.eps, 'String', '.1');
 set(handles.k1, 'String', '10');
 set(handles.k2, 'String', '30');
-set(handles.k3, 'String', '10');
+set(handles.k3, 'String', '5');
 set(handles.lbd1, 'String', '5');
-set(handles.lbd2, 'String', '5');
+set(handles.lbd2, 'String', '10');
 set(handles.lbd3, 'String', '5');
 
         
@@ -617,20 +637,43 @@ col = get(handles.btnOpt,'backg');
 set(handles.btnOpt,'str','RUNNING OPTIMIZATION ...','backg',[.1 .6 .1]);
 drawnow;
 
-% GetOptimalTrajectories
-t = 0:.1:10;
-Q1 = sin(t);        Q1d = cos(t);       Q1dd = -sin(t);
-Q2 = -.5+sin(t);    Q2d = cos(t);      Q2dd = sin(t);
-Q4 = .75*sin(t);    Q4d = .75*cos(t);   Q4dd = -.75*sin(t);
+GetOptimalTrajectories
+% t = 0:.1:10;
+% Q1 = sin(t);        Q1d = cos(t);       Q1dd = -sin(t);
+% Q2 = -.5+sin(t);    Q2d = cos(t);      Q2dd = sin(t);
+% Q4 = .75*sin(t);    Q4d = .75*cos(t);   Q4dd = -.75*sin(t);
+% 
+% q = [Q1; Q2; Q4];
+% qd = [Q1d; Q2d; Q4d];
+% qdd = [Q1dd; Q2dd; Q4dd];
+% handles.Tau = q;
+% handles.Q = [q; qd; qdd].';
+handles.Q = [q qd qdd];
+handles.Tau = Tau;
 
-q = [Q1; Q2; Q4];
-qd = [Q1d; Q2d; Q4d];
-qdd = [Q1dd; Q2dd; Q4dd];
-handles.Tau = q;
-handles.Q = [q; qd; qdd].';
+handles.ho(1) = plot(handles.pax(1), t, handles.Q(:,1), 'LineWidth', 1.5);  ylabel(handles.pax(1), 'q1');
+handles.ho(2) = plot(handles.pax(4), t, handles.Q(:,4), 'LineWidth', 1.5);  ylabel(handles.pax(4), 'q1dot');
 
-plotStates(t, handles.Q, handles.pax, handles.Tau.')
+handles.ho(3) = plot(handles.pax(2), t, handles.Q(:,2), 'LineWidth', 1.5); ylabel(handles.pax(2), 'q2');
+handles.ho(4) = plot(handles.pax(5), t, handles.Q(:,5), 'LineWidth', 1.5); ylabel(handles.pax(5), 'q2dot');
+
+handles.ho(5) = plot(handles.pax(3), t, handles.Q(:,3), 'LineWidth', 1.5); ylabel(handles.pax(3), 'q4');
+handles.ho(6) = plot(handles.pax(6), t, handles.Q(:,6), 'LineWidth', 1.5); ylabel(handles.pax(6), 'q4dot');
+
+% plotStates(t, handles.Q, handles.pax, handles.Tau.')
 set(handles.btnOpt,'str','FIND Optimal Trajectories','backg',col) 
+set(handles.checkbox3,'value',1);
+
+set(handles.gamma, 'String', '5');
+set(handles.rho, 'String', '5');
+set(handles.eps, 'String', '.1');
+set(handles.k1, 'String', '10');
+set(handles.k2, 'String', '30');
+set(handles.k3, 'String', '5');
+set(handles.lbd1, 'String', '5');
+set(handles.lbd2, 'String', '10');
+set(handles.lbd3, 'String', '5');
+                    
 guidata(hObject, handles);
 
 
@@ -645,7 +688,9 @@ function checkbox2_Callback(hObject, eventdata, handles)
 if get(hObject,'Value')
 %     handles.select = 0;
 %     handles.Q0 = handles.Q(1,:);
-    set(handles.checkbox2,'value',1);
+    handles.Q0 = [0, -.5, 0, 0, 0, 0];
+    set(handles.checkbox3,'value',0);
+    set(handles.checkbox4,'value',0);
     guidata(hObject, handles);
 end
 
@@ -657,9 +702,34 @@ function checkbox3_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox3
 
+% OPtimal
+
 if get(hObject,'Value')
     handles.select = 0;
-    handles.Q0 = handles.Q(1,:);
+    handles.Q0 = handles.Q(1,1:6);
     set(handles.checkbox2,'value',0);
+    set(handles.checkbox4,'value',0);
+    set(handles.ho,'Visible','on');
+    guidata(hObject, handles);
+else
+    set(handles.ho,'Visible','off');
+end
+
+
+% --- Executes on button press in checkbox4.
+function checkbox4_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox4
+
+% Different IC
+if get(hObject,'Value')
+%     handles.select = 0;
+%     handles.Q0 = handles.Q(1,:);
+    handles.Q0 = [pi/4, pi/4, pi/4, pi/4, pi/4, pi/4];
+    set(handles.checkbox2,'value',0);
+    set(handles.checkbox3,'value',0);
     guidata(hObject, handles);
 end

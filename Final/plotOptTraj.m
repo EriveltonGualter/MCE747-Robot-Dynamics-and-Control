@@ -1,4 +1,4 @@
-function [q, qd, qdd, Tau] = plotOptTraj(X, w, t, VeFcn, VpFcn, Yfcn, TH)
+function [q, qd, qdd, Tau] = plotOptTraj(X, w, t, VeFcn, VpFcn, Yfcn, TH, flag)
 
     % Unpack
     A = X( 1:12);
@@ -37,22 +37,24 @@ function [q, qd, qdd, Tau] = plotOptTraj(X, w, t, VeFcn, VpFcn, Yfcn, TH)
     VE = sqrt(Ve(1,:).^2+Ve(2,:).^2+Ve(3,:).^2).';
     VP = sqrt(Vp(1,:).^2+Vp(2,:).^2+Vp(3,:).^2).';
     
-    figure;
-    subplot(311); hold on; plot(t, q(:,1));     plot(t, ones(length(t)), t, -1*ones(length(t)), 'r', 'LineWidth', 2);       ylabel('q1');
-    subplot(312); hold on; plot(t, q(:,2));     plot(t, ones(length(t)), t, -1*ones(length(t)), 'r', 'LineWidth', 2);       ylabel('q2');
-    subplot(313); hold on; plot(t, q(:,3));     plot(t, 2*ones(length(t)), t, -.5*ones(length(t)), 'r', 'LineWidth', 2);    ylabel('q4');
+    if flag
+        figure;
+        subplot(311); hold on; plot(t, q(:,1));     plot(t, ones(length(t)), t, -1*ones(length(t)), 'r', 'LineWidth', 2);       ylabel('q1');
+        subplot(312); hold on; plot(t, q(:,2));     plot(t, ones(length(t)), t, -1*ones(length(t)), 'r', 'LineWidth', 2);       ylabel('q2');
+        subplot(313); hold on; plot(t, q(:,3));     plot(t, 2*ones(length(t)), t, -.5*ones(length(t)), 'r', 'LineWidth', 2);    ylabel('q4');
 
-    figure;
-    subplot(311); hold on; plot(t, qd(:,1));    plot(t, ones(length(t)), t, -1*ones(length(t)), 'r', 'LineWidth', 2);       ylabel('q1d');
-    subplot(312); hold on; plot(t, qd(:,2));    plot(t, ones(length(t)), t, -1*ones(length(t)), 'r', 'LineWidth', 2);       ylabel('q2d');
-    subplot(313); hold on; plot(t, qd(:,3));    plot(t, ones(length(t)), t, -1*ones(length(t)), 'r', 'LineWidth', 2);       ylabel('q4d');
+        figure;
+        subplot(311); hold on; plot(t, qd(:,1));    plot(t, ones(length(t)), t, -1*ones(length(t)), 'r', 'LineWidth', 2);       ylabel('q1d');
+        subplot(312); hold on; plot(t, qd(:,2));    plot(t, ones(length(t)), t, -1*ones(length(t)), 'r', 'LineWidth', 2);       ylabel('q2d');
+        subplot(313); hold on; plot(t, qd(:,3));    plot(t, ones(length(t)), t, -1*ones(length(t)), 'r', 'LineWidth', 2);       ylabel('q4d');
 
-    figure;
-    subplot(211); hold on; plot(t, VE);         plot(t, .5*ones(length(t)), t, -.5*ones(length(t)), 'r', 'LineWidth', 2);   ylabel('Ve');
-    subplot(212); hold on; plot(t, VP);         plot(t, .5*ones(length(t)), t, -.5*ones(length(t)), 'r', 'LineWidth', 2);   ylabel('Vp');
-    
-    figure;
-    subplot(311); hold on; plot(t, Tau(1,:));         plot(t, 25*ones(length(t)), t, -25*ones(length(t)), 'r', 'LineWidth', 2);   ylabel('Tau 1');
-    subplot(312); hold on; plot(t, Tau(2,:));         plot(t, 25*ones(length(t)), t, -25*ones(length(t)), 'r', 'LineWidth', 2);   ylabel('Tau 2');
-    subplot(313); hold on; plot(t, Tau(3,:));         plot(t, 25*ones(length(t)), t, -25*ones(length(t)), 'r', 'LineWidth', 2);   ylabel('Tau 3');
+        figure;
+        subplot(211); hold on; plot(t, VE);         plot(t, .5*ones(length(t)), t, -.5*ones(length(t)), 'r', 'LineWidth', 2);   ylabel('Ve');
+        subplot(212); hold on; plot(t, VP);         plot(t, .5*ones(length(t)), t, -.5*ones(length(t)), 'r', 'LineWidth', 2);   ylabel('Vp');
+
+        figure;
+        subplot(311); hold on; plot(t, Tau(1,:));         plot(t, 25*ones(length(t)), t, -25*ones(length(t)), 'r', 'LineWidth', 2);   ylabel('Tau 1');
+        subplot(312); hold on; plot(t, Tau(2,:));         plot(t, 25*ones(length(t)), t, -25*ones(length(t)), 'r', 'LineWidth', 2);   ylabel('Tau 2');
+        subplot(313); hold on; plot(t, Tau(3,:));         plot(t, 25*ones(length(t)), t, -25*ones(length(t)), 'r', 'LineWidth', 2);   ylabel('Tau 3');
+    end
 end

@@ -30,15 +30,15 @@ OPTIONS = optimoptions('fmincon','Display','iter','MaxFunctionEvaluations',10000
 
 EXITFLAG = -1;
 while EXITFLAG < 0
-    r0 = -.3;
-    r1 = .3;
+    r0 = -.2;
+    r1 = .2;
     X0 = [a; b]; 
     [X,FVAL,EXITFLAG,OUTPUT] = fmincon(FUN,X0,[],[],[],[],[],[],NONLCON,OPTIONS);
     a = (r1-r0)*rand(12,1) +r0;
     b = (r1-r0)*rand(12,1) +r0;
 end
 
-[q, qd, qdd, Tau] = plotOptTraj(X, w, t, VeFcn, VpFcn, Yfcn, TH);
+[q, qd, qdd, Tau] = plotOptTraj(X, w, t, VeFcn, VpFcn, Yfcn, TH, 1);
 
 % Object Function
 function cost = objFunction(X, w, lambd1, lambd2, t, Yfcn)
